@@ -2,16 +2,16 @@
 spl_autoload_extensions('.php');
 spl_autoload_register();
 
+require_once 'system/core/ErrorHandler.php';
+
 final class Kit{
-    private $UrlParts = false;
-    private $Controller = false;
-    private $Class = false;
-    private $Method = false;
-    private $Errors = false;
-    private $ErrorPage = false;
-    private $Config = false;
-    private $AutoLoad = false;
-    private $Router = false;
+    static public $Config = false;
+    static public $AutoLoad = false;
+    static public $Router = false;
+    static public $UrlParts = false;
+    static public $Controller = false;
+    static public $Class = false;
+    static public $Method = false;
 
     function __construct(){
         $this->getSettings();
@@ -23,24 +23,26 @@ final class Kit{
         $router = false;
         $autoLoad = false;
 
-        require_once 'app/settings/config.php';
-        require_once 'app/settings/router.php';
-        require_once 'app/settings/autoLoad.php';
+        require_once 'app/settings/Config.php';
+        require_once 'app/settings/Router.php';
+        require_once 'app/settings/AutoLoad.php';
 
         ############
         ## Config ##
         ############
-        $this->Config = $config;
+        self::$Config = $config;
+
+        if(empty(self::$Config['environment']) || self::$Config['environment'] != 'production') self::$Config['environment'] = 'development';
 
         ############
         ## Router ##
         ############
-        $this->Router = $router;
+        self::$Router = $router;
 
         ##############
         ## AutoLoad ##
         ##############
-        $this->AutoLoad = $autoLoad;
+        self::$AutoLoad = $autoLoad;
     }
     // Get and check the default settings for `Config` && `Router` && `AutoLoad`.
 
@@ -50,7 +52,7 @@ final class Kit{
         array_shift($accessPath);
         if($accessPath[0] == NULL) array_shift($accessPath);
         if(!count($accessPath)) return false;
-        $this->UrlParts = $accessPath;
+        self::$UrlParts = $accessPath;
         return true;
     }
     // Divider PATH_INFO to array by `/` into $this->_UrlParts.

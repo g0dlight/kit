@@ -1,7 +1,5 @@
 <?php
-include_once 'system/core/kit.php';
-
-// switch cases of ENVIRONMENT: development, production;
+include_once 'system/core/Kit.php';
 
 // new Kit object;
 new Kit();
