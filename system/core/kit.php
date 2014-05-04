@@ -14,8 +14,35 @@ final class Kit{
     private $Router = false;
 
     function __construct(){
+        $this->getSettings();
         $this->getUrlParts();
     }
+
+    private function getSettings(){
+        $config = false;
+        $router = false;
+        $autoLoad = false;
+
+        require_once 'app/settings/config.php';
+        require_once 'app/settings/router.php';
+        require_once 'app/settings/autoLoad.php';
+
+        ############
+        ## Config ##
+        ############
+        $this->Config = $config;
+
+        ############
+        ## Router ##
+        ############
+        $this->Router = $router;
+
+        ##############
+        ## AutoLoad ##
+        ##############
+        $this->AutoLoad = $autoLoad;
+    }
+    // Get and check the default settings for `Config` && `Router` && `AutoLoad`.
 
     private function getUrlParts(){
         $accessPath = (isset($_SERVER['PATH_INFO']))? $_SERVER['PATH_INFO']:'/';
@@ -24,6 +51,7 @@ final class Kit{
         if($accessPath[0] == NULL) array_shift($accessPath);
         if(!count($accessPath)) return false;
         $this->UrlParts = $accessPath;
+        return true;
     }
     // Divider PATH_INFO to array by `/` into $this->_UrlParts.
 }
