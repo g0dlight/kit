@@ -30,10 +30,10 @@ function getType($errorNumber){
 
 function Normal($errorNumber, $errorMessage, $errorFileName, $errorLineNumber, $errorVariables){
     $error['type'] = $errorNumber;
-    $error['title'] = getType($errorNumber);
     $error['message'] = $errorMessage;
     $error['file'] = $errorFileName;
     $error['line'] = $errorLineNumber;
+    $error['title'] = getType($errorNumber);
     $error['variables'] = $errorVariables;
     if(Kit::$Config['environment'] == 'development') Flush($error);
 }

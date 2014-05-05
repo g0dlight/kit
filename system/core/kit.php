@@ -8,7 +8,7 @@ final class Kit{
     static public $Config = false;
     static public $AutoLoad = false;
     static public $Router = false;
-    static public $UrlParts = false;
+    static public $UrlParts = array();
     static public $Controller = array('Stage'=>'none','Path'=>'app/controllers/','Name'=>'undefined','Method'=>'index');
 
     function __construct(){
@@ -62,7 +62,7 @@ final class Kit{
         $accessPath = explode('/', $accessPath);
         array_shift($accessPath);
         if($accessPath[0] == NULL) array_shift($accessPath);
-        if(!count($accessPath)) return false;
+        if(!count($accessPath)) return array();
         self::$UrlParts = $accessPath;
         return true;
     }
@@ -72,7 +72,7 @@ final class Kit{
         $path = self::$Controller['Path'];
         if(self::$UrlParts){
             $parts = false;
-            foreach((array)self::$UrlParts as $value){
+            foreach(self::$UrlParts as $value){
                 if(file_exists($path.$value.'.php')){
                     array_shift(self::$UrlParts);
                     self::$Controller['Path'] = $path;
@@ -85,7 +85,7 @@ final class Kit{
                 }
                 else break;
             }
-            if($parts) self::$UrlParts = array_merge($parts, (array)self::$UrlParts);
+            if($parts) self::$UrlParts = array_merge($parts, self::$UrlParts);
         }
         self::$Controller['Name'] = self::$Config['default_controller'];
     }
