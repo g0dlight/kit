@@ -11,7 +11,7 @@ $config = array();
 | By Default Kit set it to -> development;
 |
 */
-$config['environment'] = '';
+$config['environment'] = 'development';
 
 /*
 |--------------------------------------------------------------------------
@@ -23,5 +23,18 @@ $config['environment'] = '';
 */
 $config['default_controller'] = 'welcome';
 
+/*
+|--------------------------------------------------------------------------
+| Load Kit instrument
+|--------------------------------------------------------------------------
+|
+| Set -> true || false;
+| For loading Kit instruments to the controllers
+|
+*/
+$config['instruments']['models'] = true;
+$config['instruments']['views'] = true;
+$config['instruments']['helpers'] = true;
+$config['instruments']['libraries'] = true;
 
 ##########################################################################################

@@ -1,46 +1,22 @@
 <?php
+/*
+ * #### Warning this is a SYSTEM FILE ####
+ */
+
 namespace System\Core;
 
+if(!defined('KIT_KEY')) exit('Access denied.');
+
 final class Loader{
-    static public $Controllers = array();
-    static public $Models = array();
-    static public $Views = array();
-    static public $Helpers = array();
-    static public $Libraries = array();
+    static public $Models;
+    static public $Views;
+    static public $Helpers;
+    static public $Libraries;
 
-    static private function getFile($path){
-        $path = str_replace('.php', '', $path);
-        $path = explode('/', $path);
-        $file_name = array_pop($path);
-        $path = implode("/", $path).'/'.$file_name.'.php';
-        if(file_exists($path)){
-            require_once $path;
-            return ucfirst($file_name);
-        }
-        else{
-            return false;
-        }
-
-    }
-
-    static public function Controller($name){
-        self::$Controllers[] = ucfirst($name);
-        self::getFile('app/controllers'.$name.'.php');
-    }
-
-    static public function Model(){
-
-    }
-
-    static public function View(){
-
-    }
-
-    static public function Helper(){
-
-    }
-
-    static public function Library(){
-
+    function __construct(){
+        if(\Kit::$Config['instruments']['models']) self::$Models = new Models();
+        if(\Kit::$Config['instruments']['views']) self::$Views = new Views();
+        if(\Kit::$Config['instruments']['helpers']) self::$Helpers = new Helpers();
+        if(\Kit::$Config['instruments']['libraries']) self::$Libraries = new Libraries();
     }
 }

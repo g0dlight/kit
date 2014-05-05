@@ -1,8 +1,14 @@
-<?php
+<?php if(!defined('KIT_KEY')) exit('Access denied.');
+/*
+ * #### Warning this is a SYSTEM FILE ####
+ */
+
 spl_autoload_extensions('.php');
 spl_autoload_register();
 
 require_once 'system/core/ErrorHandler.php';
+
+use System\Core\Loader;
 
 final class Kit{
     static public $Config = false;
@@ -16,6 +22,8 @@ final class Kit{
         $this->getUrlParts();
         $this->getController();
 
+        new Loader();
+
         if(require_once self::$Controller['Path'].self::$Controller['Name'].'.php'.''){
             self::$Controller['Stage'] = 'file loaded';
             if(class_exists(self::$Controller['Name'], false)){
@@ -27,6 +35,8 @@ final class Kit{
                 if(is_callable(array($Controller,self::$Controller['Method']))){
                     call_user_func_array(array($Controller, self::$Controller['Method']), self::$UrlParts);
                     self::$Controller['Stage'] = 'method loaded';
+
+                    echo \System\Core\Views::pull();
                 }
             }
         }
@@ -46,7 +56,26 @@ final class Kit{
         ############
         self::$Config = $config;
 
-        if(empty(self::$Config['environment']) || self::$Config['environment'] != 'production') self::$Config['environment'] = 'development';
+        ## environment
+        if(!isset(self::$Config['environment']) || self::$Config['environment'] != 'production')
+            self::$Config['environment'] = 'development';
+
+        ## default controller
+        if(empty(self::$Config['default_controller']))
+            self::$Config['default_controller'] = 'undefined';
+
+        ## instruments
+        if(!isset(self::$Config['instruments']['models']) || self::$Config['instruments']['models'] !== false)
+            self::$Config['instruments']['models'] = true;
+
+        if(!isset(self::$Config['instruments']['views']) || self::$Config['instruments']['views'] !== false)
+            self::$Config['instruments']['views'] = true;
+
+        if(!isset(self::$Config['instruments']['helpers']) || self::$Config['instruments']['helpers'] !== false)
+            self::$Config['instruments']['helpers'] = true;
+
+        if(!isset(self::$Config['instruments']['libraries']) || self::$Config['instruments']['libraries'] !== false)
+            self::$Config['instruments']['libraries'] = true;
 
         ############
         ## Router ##
