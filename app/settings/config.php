@@ -21,7 +21,7 @@ $config['environment'] = '';
 | Set the default controller
 |
 */
-$config['default_controller'] = '';
+$config['default_controller'] = 'welcome';
 
 
 ##########################################################################################
