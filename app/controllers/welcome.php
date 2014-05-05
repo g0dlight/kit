@@ -1,6 +1,6 @@
 <?php if(!defined('KIT_KEY')) exit('Access denied.');
 
-class Welcome extends System\Core\Controllers{
+class Welcome extends System\Basics\Controllers{
     public $welcomeStr = '<h1>Welcome!</h1>';
 
     public function constructor(){

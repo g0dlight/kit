@@ -3,9 +3,11 @@
  * #### Warning this is a SYSTEM FILE ####
  */
 
-namespace System\Core;
+namespace System\Basics;
 
 if(!defined('KIT_KEY')) exit('Access denied.');
+
+use System\Core\Loader;
 
 abstract class Controllers{
     private $Construct = false;
