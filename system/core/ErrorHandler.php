@@ -1,7 +1,11 @@
 <?php
+/*
+ * #### Warning this is a SYSTEM FILE ####
+ */
+
 namespace System\Core\ErrorHandler;
 
-use Kit;
+if(!defined('KIT_KEY')) exit('Access denied.');
 
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', false);
@@ -28,23 +32,26 @@ function getType($errorNumber){
 }
 // Get text error type by the error number.
 
-function Normal($errorNumber, $errorMessage, $errorFileName, $errorLineNumber, $errorVariables){
+function Normal($errorNumber, $errorMessage, $errorFileName, $errorLineNumber){ // + (, $errorVariables)
     $error['type'] = $errorNumber;
     $error['message'] = $errorMessage;
     $error['file'] = $errorFileName;
     $error['line'] = $errorLineNumber;
     $error['title'] = getType($errorNumber);
-    $error['variables'] = $errorVariables;
-    if(Kit::$Config['environment'] == 'development') Flush($error);
+    $error['backtrace'] = debug_backtrace(); //$errorVariables;
+    $error['handler'] = 'Normal';
+
+    if(\Kit::$Config['environment'] == 'development') Flush($error);
 }
 // Error handling function.
 
 function Fatal(){
     $error = error_get_last();
-    if($error['type'] === E_ERROR || $error['type'] === E_PARSE){
-        $error['title'] = getType($error['type']);
-        if(Kit::$Config['environment'] == 'development') Flush($error);
-    }
+    if(!isset($error['type'])) return;
+    $error['title'] = getType($error['type']);
+    $error['handler'] = 'Fatal';
+
+    if(\Kit::$Config['environment'] == 'development') Flush($error);
 }
 // Fatal error handler function.
 
