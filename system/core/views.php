@@ -7,9 +7,9 @@ namespace System\Core;
 
 if(!defined('KIT_KEY')) exit('Access denied.');
 
-final class Views{
-    private static $output;
+use System\Core\Output;
 
+final class Views{
     public static function load($filePath, $variablesArray=NULL,$resultIntoVariable=FALSE){
         $filePath = 'app/views/'.$filePath.'.php';
         if(!file_exists($filePath)) throw new \Exception('The view file: `'.$filePath.'` is not found!');
@@ -25,17 +25,9 @@ final class Views{
             ob_end_clean();
             if($resultIntoVariable) return $file;
             else{
-                self::$output .= $file;
+                Output::push('view', $file);
                 return true;
             }
         }
-    }
-
-    public static function clear(){
-        self::$output = null;
-    }
-
-    public static function pull(){
-        return self::$output;
     }
 }

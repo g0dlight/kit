@@ -6,8 +6,10 @@
 spl_autoload_extensions('.php');
 spl_autoload_register();
 
-require_once 'system/core/ErrorHandler.php';
+require_once 'system/core/Shutdown.php';
 
+use System\Core\Errors;
+use System\Core\Output;
 use System\Core\Loader;
 
 final class Kit{
@@ -22,21 +24,27 @@ final class Kit{
         $this->getUrlParts();
         $this->getController();
 
+        new Errors();
+        new Output();
         new Loader();
 
         if(require_once self::$Controller['Path'].self::$Controller['Name'].'.php'.''){
             self::$Controller['Stage'] = 'file loaded';
             if(class_exists(self::$Controller['Name'], false)){
+                ob_start();
                 $Controller = new self::$Controller['Name']();
+                Output::push('constructor', ob_get_contents());
+                ob_end_clean();
                 self::$Controller['Stage'] = 'class loaded';
                 if(isset(self::$UrlParts[0]) && method_exists($Controller, self::$UrlParts[0])){
                     self::$Controller['Method'] = array_shift(self::$UrlParts);
                 }
                 if(is_callable(array($Controller,self::$Controller['Method']))){
+                    ob_start();
                     call_user_func_array(array($Controller, self::$Controller['Method']), self::$UrlParts);
+                    Output::push('method', ob_get_contents());
+                    ob_end_clean();
                     self::$Controller['Stage'] = 'method loaded';
-
-                    echo \System\Core\Views::pull();
                 }
             }
         }
