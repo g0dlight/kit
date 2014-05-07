@@ -38,6 +38,19 @@ final class Errors{
         else return 'Unknown Error';
     }
 
+    static public function make($message, $fatal=false){
+        $backTrace = debug_backtrace()[1];
+        if($fatal){
+            $error['type'] = 1;
+            $error['message'] = $message;
+            $error['file'] = $backTrace['file'];
+            $error['line'] = $backTrace['line'];
+            self::fatal($error);
+            exit();
+        }
+        else self::nonfatal(1, $message, $backTrace['file'], $backTrace['line']);
+    }
+
     static public function fatal($error){
         $error['fatal'] = true;
         $error['title'] = self::getTitle($error['type']);
