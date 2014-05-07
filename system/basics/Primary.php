@@ -9,7 +9,7 @@ if(!defined('KIT_KEY')) exit('Access denied.');
 
 use System\Core\Loader;
 
-abstract class Controllers{
+abstract class Primary{
     private $Construct = false;
 
     protected $Models;
