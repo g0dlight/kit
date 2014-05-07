@@ -28,7 +28,9 @@ final class Kit{
         new Output();
         new Loader();
 
-        if(require_once self::$Controller['Path'].self::$Controller['Name'].'.php'.''){
+        if(self::$Controller['Name'] == 'undefined') Errors::make('Default Controller not found (`'.self::$Config['default_controller'].'`)', true);
+        else{
+            require_once self::$Controller['Path'].self::$Controller['Name'].'.php'.'';
             self::$Controller['Stage'] = 'file loaded';
             if(class_exists(self::$Controller['Name'], false)){
                 ob_start();
@@ -46,6 +48,7 @@ final class Kit{
                     ob_end_clean();
                     self::$Controller['Stage'] = 'method loaded';
                 }
+                else Errors::make('Default Method not found (`index`)', true);
             }
         }
     }
@@ -127,7 +130,9 @@ final class Kit{
             }
             if($parts) self::$UrlParts = array_merge($parts, self::$UrlParts);
         }
-        self::$Controller['Name'] = self::$Config['default_controller'];
+        if(file_exists($path.self::$Config['default_controller'].'.php')){
+            self::$Controller['Name'] = self::$Config['default_controller'];
+        }
     }
     // Get the controller
 }
