@@ -29,6 +29,7 @@ final class Kit{
         new Loader();
 
         if(self::$Controller['Name'] == 'undefined') Errors::make('Default Controller not found (`'.self::$Config['default_controller'].'`)', true);
+        elseif(isset(self::$Router['error'])) Errors::make('Controller not found (`'.self::$Controller['Path'].self::$Controller['Name'].'`) Router `'.self::$Router['error'].'`', true);
         else{
             require_once self::$Controller['Path'].self::$Controller['Name'].'.php'.'';
             self::$Controller['Stage'] = 'file loaded';
@@ -49,7 +50,7 @@ final class Kit{
                     ob_end_clean();
                     self::$Controller['Stage'] = 'method loaded';
                 }
-                else Errors::make('Default Method not found (`index`)', true);
+                else Errors::make('Method (`'.self::$Controller['Method'].'`) not found', true);
             }
         }
     }
@@ -121,6 +122,15 @@ final class Kit{
     private function getController(){
         $path = self::$Controller['Path'];
         if(self::$UrlParts){
+            if(isset(self::$Router[self::$UrlParts[0]])){
+                $fullPath = explode('/', self::$Router[self::$UrlParts[0]]);
+                self::$Router = array_shift(self::$UrlParts);
+                self::$Controller['Method'] = array_pop($fullPath);
+                self::$Controller['Name'] = array_pop($fullPath);
+                self::$Controller['Path'] = $path.implode('/', $fullPath).'/';
+                if(!file_exists(self::$Controller['Path'].self::$Controller['Name'].'.php')) self::$Router = array('error'=>self::$Router);
+                return;
+            }
             $parts = false;
             foreach(self::$UrlParts as $value){
                 if(file_exists($path.$value.'.php')){
