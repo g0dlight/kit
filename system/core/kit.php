@@ -32,18 +32,19 @@ final class Kit{
         else{
             require_once self::$Controller['Path'].self::$Controller['Name'].'.php'.'';
             self::$Controller['Stage'] = 'file loaded';
+            Loader::$Controllers->{self::$Controller['Name']} = true;
             if(class_exists(self::$Controller['Name'], false)){
                 ob_start();
-                $Controller = new self::$Controller['Name']();
+                Loader::$Controllers->{self::$Controller['Name']} = new self::$Controller['Name']();
                 Output::push('constructor', ob_get_contents());
                 ob_end_clean();
                 self::$Controller['Stage'] = 'class loaded';
-                if(isset(self::$UrlParts[0]) && method_exists($Controller, self::$UrlParts[0])){
+                if(isset(self::$UrlParts[0]) && method_exists(Loader::$Controllers->{self::$Controller['Name']}, self::$UrlParts[0])){
                     self::$Controller['Method'] = array_shift(self::$UrlParts);
                 }
-                if(is_callable(array($Controller,self::$Controller['Method']))){
+                if(is_callable(array(Loader::$Controllers->{self::$Controller['Name']},self::$Controller['Method']))){
                     ob_start();
-                    call_user_func_array(array($Controller, self::$Controller['Method']), self::$UrlParts);
+                    call_user_func_array(array(Loader::$Controllers->{self::$Controller['Name']}, self::$Controller['Method']), self::$UrlParts);
                     Output::push('method', ob_get_contents());
                     ob_end_clean();
                     self::$Controller['Stage'] = 'method loaded';
@@ -71,11 +72,17 @@ final class Kit{
         if(!isset(self::$Config['environment']) || self::$Config['environment'] != 'production')
             self::$Config['environment'] = 'development';
 
+        ## error output
+        if(!isset(self::$Config['error_output'])) self::$Config['error_output'] = '';
+
         ## default controller
         if(empty(self::$Config['default_controller']))
             self::$Config['default_controller'] = 'undefined';
 
         ## instruments
+        if(!isset(self::$Config['instruments']['controllers']) || self::$Config['instruments']['controllers'] !== false)
+            self::$Config['instruments']['controllers'] = true;
+
         if(!isset(self::$Config['instruments']['models']) || self::$Config['instruments']['models'] !== false)
             self::$Config['instruments']['models'] = true;
 
@@ -131,7 +138,9 @@ final class Kit{
             if($parts) self::$UrlParts = array_merge($parts, self::$UrlParts);
         }
         if(file_exists($path.self::$Config['default_controller'].'.php')){
-            self::$Controller['Name'] = self::$Config['default_controller'];
+            $fullPath = explode('/', self::$Config['default_controller']);
+            self::$Controller['Name'] = array_pop($fullPath);
+            self::$Controller['Path'] = $path.implode('/', $fullPath).'/';
         }
     }
     // Get the controller

@@ -12,6 +12,7 @@ use System\Core\Loader;
 abstract class Primary{
     private $Construct = false;
 
+    protected $Controllers;
     protected $Models;
     protected $Views;
     protected $Helpers;
@@ -21,10 +22,11 @@ abstract class Primary{
         if($this->Construct) return;
         $this->Construct = true;
         ####################################################################################
-        $this->Models = Loader::$Models;
-        $this->Views = Loader::$Views;
-        $this->Helpers = Loader::$Helpers;
-        $this->Libraries = Loader::$Libraries;
+        if(\Kit::$Config['instruments']['controllers']) $this->Controllers = Loader::$Controllers;
+        if(\Kit::$Config['instruments']['models']) $this->Models = Loader::$Models;
+        if(\Kit::$Config['instruments']['views']) $this->Views = Loader::$Views;
+        if(\Kit::$Config['instruments']['helpers'])$this->Helpers = Loader::$Helpers;
+        if(\Kit::$Config['instruments']['libraries']) $this->Libraries = Loader::$Libraries;
         ####################################################################################
         $this->constructor();
     }

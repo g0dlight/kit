@@ -11,6 +11,7 @@ final class Output{
     static private $userConstructor = '';
     static private $userMethod = '';
     static private $userViews = '';
+    static private $obStuck = '';
 
     static public function push($whereTo, $content){
         switch($whereTo){
@@ -23,6 +24,9 @@ final class Output{
             case 'view':
                 self::$userViews .= $content;
                 break;
+            case 'obStuck':
+                self::$obStuck .= $content;
+                break;
         }
     }
 
@@ -30,5 +34,6 @@ final class Output{
         echo self::$userConstructor;
         echo self::$userMethod;
         echo self::$userViews;
+        echo self::$obStuck;
     }
 }

@@ -10,29 +10,50 @@ if(!defined('KIT_KEY')) exit('Access denied.');
 ##########
 ## declare main loader instance all loaders
 final class Loader{
+    static public $Controllers;
     static public $Models;
     static public $Views;
     static public $Helpers;
     static public $Libraries;
 
     function __construct(){
-        if(\Kit::$Config['instruments']['models']) self::$Models = new Models();
-        if(\Kit::$Config['instruments']['views']) self::$Views = new Views();
-        if(\Kit::$Config['instruments']['helpers']) self::$Helpers = new Helpers();
-        if(\Kit::$Config['instruments']['libraries']) self::$Libraries = new Libraries();
+        self::$Controllers = new Controllers();
+        self::$Models = new Models();
+        self::$Views = new Views();
+        self::$Helpers = new Helpers();
+        self::$Libraries = new Libraries();
+    }
+}
+
+##########
+## declare Controllers loader
+final class Controllers{
+    public function __get($fullPath){
+        $fullPath = explode('/', $fullPath);
+        $name = array_pop($fullPath);
+        $path = 'app/controllers/'.implode('/', $fullPath);
+        if(!file_exists($path.'/'.$name.'.php')) Errors::make('Loader failed! The controller `'.$name.'` not found in `'.$path.'`' ,true);
+        else{
+            require_once $path.'/'.$name.'.php'.'';
+            return $this->$name = (class_exists($name, false))? new $name:true;
+        }
+        return false;
     }
 }
 
 ##########
 ## declare Models loader
 final class Models{
-    public function __get($name){
-        $path = 'app/models/'.$name.'.php';
-        if(!file_exists($path)) Errors::make('Loader failed! The model `'.$name.'` not found' ,true);
+    public function __get($fullPath){
+        $fullPath = explode('/', $fullPath);
+        $name = array_pop($fullPath);
+        $path = 'app/models/'.implode('/', $fullPath);
+        if(!file_exists($path.'/'.$name.'.php')) Errors::make('Loader failed! The model `'.$name.'` not found in `'.$path.'`' ,true);
         else{
-            require_once $path.'';
-            return $this->$name = new $name;
+            require_once $path.'/'.$name.'.php'.'';
+            return $this->$name = (class_exists($name, false))? new $name:true;
         }
+        return false;
     }
 }
 
@@ -58,31 +79,38 @@ final class Views{
                 return true;
             }
         }
+        return false;
     }
 }
 
 ##########
 ## declare Helpers loader
 final class Helpers{
-    public function __get($name){
-        $path = 'app/helpers/'.$name.'.php';
-        if(!file_exists($path)) Errors::make('Loader failed! The helper `'.$name.'` not found' ,true);
+    public function __get($fullPath){
+        $fullPath = explode('/', $fullPath);
+        $name = array_pop($fullPath);
+        $path = 'app/helpers/'.implode('/', $fullPath);
+        if(!file_exists($path.'/'.$name.'.php')) Errors::make('Loader failed! The helper `'.$name.'` not found in `'.$path.'`' ,true);
         else{
-            require_once $path.'';
+            require_once $path.'/'.$name.'.php'.'';
+            return $this->$name = (class_exists($name, false))? new $name:true;
         }
-        return $this->$name = (class_exists($name, false))? new $name:true;
+        return false;
     }
 }
 
 ##########
 ## declare Libraries loader
 final class Libraries{
-    public function __get($name){
-        $path = 'app/libraries/'.$name.'/'.$name.'.php';
-        if(!file_exists($path)) Errors::make('Loader failed! The library `'.$name.'` not found' ,true);
+    public function __get($fullPath){
+        $fullPath = explode('/', $fullPath);
+        $name = array_pop($fullPath);
+        $path = 'app/libraries/'.implode('/', $fullPath);
+        if(!file_exists($path.'/'.$name.'.php')) Errors::make('Loader failed! The library `'.$name.'` not found in `'.$path.'`' ,true);
         else{
-            require_once $path.'';
+            require_once $path.'/'.$name.'.php'.'';
+            return $this->$name = (class_exists($name, false))? new $name:true;
         }
-        return $this->$name = (class_exists($name, false))? new $name:true;
+        return false;
     }
 }
