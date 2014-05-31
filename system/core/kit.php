@@ -8,18 +8,20 @@ spl_autoload_register();
 
 require_once 'system/core/Shutdown.php';
 
+use System\Core\Config;
 use System\Core\Errors;
 use System\Core\Output;
 use System\Core\Loader;
 
 final class Kit{
-    static public $Config = false;
     static public $AutoLoad = false;
     static public $Router = false;
     static public $UrlParts = array();
     static public $Controller = array('Stage'=>'none','Path'=>'app/controllers/','Name'=>'undefined','Method'=>'index');
 
     function __construct(){
+        new Config();
+
         $this->getSettings();
         $this->getUrlParts();
         $this->getController();
@@ -28,7 +30,7 @@ final class Kit{
         new Output();
         new Loader();
 
-        if(self::$Controller['Name'] == 'undefined') Errors::make('Default Controller not found (`'.self::$Config['default_controller'].'`)', true);
+        if(self::$Controller['Name'] == 'undefined') Errors::make('Default Controller not found (`'.Config::get('default_controller').'`)', true);
         elseif(isset(self::$Router['error'])) Errors::make('Controller not found (`'.self::$Controller['Path'].self::$Controller['Name'].'`) Router `'.self::$Router['error'].'`', true);
         else{
             require_once self::$Controller['Path'].self::$Controller['Name'].'.php'.'';
@@ -56,45 +58,11 @@ final class Kit{
     }
 
     private function getSettings(){
-        $config = false;
         $router = false;
         $autoLoad = false;
 
-        require_once 'app/settings/Config.php';
         require_once 'app/settings/Router.php';
         require_once 'app/settings/AutoLoad.php';
-
-        ############
-        ## Config ##
-        ############
-        self::$Config = $config;
-
-        ## environment
-        if(!isset(self::$Config['environment']) || self::$Config['environment'] != 'production')
-            self::$Config['environment'] = 'development';
-
-        ## error output
-        if(!isset(self::$Config['error_output'])) self::$Config['error_output'] = '';
-
-        ## default controller
-        if(empty(self::$Config['default_controller']))
-            self::$Config['default_controller'] = 'undefined';
-
-        ## instruments
-        if(!isset(self::$Config['instruments']['controllers']) || self::$Config['instruments']['controllers'] !== false)
-            self::$Config['instruments']['controllers'] = true;
-
-        if(!isset(self::$Config['instruments']['models']) || self::$Config['instruments']['models'] !== false)
-            self::$Config['instruments']['models'] = true;
-
-        if(!isset(self::$Config['instruments']['views']) || self::$Config['instruments']['views'] !== false)
-            self::$Config['instruments']['views'] = true;
-
-        if(!isset(self::$Config['instruments']['helpers']) || self::$Config['instruments']['helpers'] !== false)
-            self::$Config['instruments']['helpers'] = true;
-
-        if(!isset(self::$Config['instruments']['libraries']) || self::$Config['instruments']['libraries'] !== false)
-            self::$Config['instruments']['libraries'] = true;
 
         ############
         ## Router ##
@@ -147,8 +115,8 @@ final class Kit{
             }
             if($parts) self::$UrlParts = array_merge($parts, self::$UrlParts);
         }
-        if(file_exists($path.self::$Config['default_controller'].'.php')){
-            $fullPath = explode('/', self::$Config['default_controller']);
+        if(file_exists($path.Config::get('default_controller').'.php')){
+            $fullPath = explode('/', Config::get('default_controller'));
             self::$Controller['Name'] = array_pop($fullPath);
             self::$Controller['Path'] = $path.implode('/', $fullPath).'/';
         }

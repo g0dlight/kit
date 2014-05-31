@@ -3,6 +3,7 @@
  * #### Warning this is a SYSTEM FILE ####
  */
 
+use System\Core\Config;
 use System\Core\Errors;
 use System\Core\Output;
 
@@ -17,9 +18,9 @@ function KitShutdown($workingDir){
         Errors::fatal($errorCatch);
     }
     // catch fatal error and report to Error class
-    if(Kit::$Config['environment'] == 'development' && Errors::$catch) Errors::show();
-    elseif(Kit::$Config['error_output'] != '' && Kit::$Config['environment'] == 'production' && Errors::$catch){
-        $path = explode('/', Kit::$Config['error_output']);
+    if(Config::get('environment') == 'development' && Errors::$catch) Errors::show();
+    elseif(Config::get('error_output') != '' && Config::get('environment') == 'production' && Errors::$catch){
+        $path = explode('/', Config::get('error_output'));
         $method = array_pop($path);
         $controller = implode('/', $path);
         System\Core\Loader::$Controllers->$controller->$method();

@@ -7,6 +7,7 @@ namespace System\Basics;
 
 if(!defined('KIT_KEY')) exit('Access denied.');
 
+use System\Core\Config;
 use System\Core\Loader;
 
 abstract class Primary{
@@ -21,12 +22,13 @@ abstract class Primary{
     final function __construct(){
         if($this->Construct) return;
         $this->Construct = true;
+        $config = Config::get('instruments');
         ####################################################################################
-        if(\Kit::$Config['instruments']['controllers']) $this->Controllers = Loader::$Controllers;
-        if(\Kit::$Config['instruments']['models']) $this->Models = Loader::$Models;
-        if(\Kit::$Config['instruments']['views']) $this->Views = Loader::$Views;
-        if(\Kit::$Config['instruments']['helpers'])$this->Helpers = Loader::$Helpers;
-        if(\Kit::$Config['instruments']['libraries']) $this->Libraries = Loader::$Libraries;
+        if($config['controllers']) $this->Controllers = Loader::$Controllers;
+        if($config['models']) $this->Models = Loader::$Models;
+        if($config['views']) $this->Views = Loader::$Views;
+        if($config['helpers'])$this->Helpers = Loader::$Helpers;
+        if($config['libraries']) $this->Libraries = Loader::$Libraries;
         ####################################################################################
         $this->constructor();
     }
