@@ -7,110 +7,83 @@ namespace System\Core;
 
 if(!defined('KIT_KEY')) exit('Access denied.');
 
-##########
-## declare main loader instance all loaders
 final class Loader{
-    static public $Controllers;
-    static public $Models;
-    static public $Views;
-    static public $Helpers;
-    static public $Libraries;
+    static public $controller = false;
+    static public $errorHandler = false;
+    static public $autoLoad = false;
+    static public $duplicate = false;
 
     function __construct(){
-        self::$Controllers = new Controllers();
-        self::$Models = new Models();
-        self::$Views = new Views();
-        self::$Helpers = new Helpers();
-        self::$Libraries = new Libraries();
+        self::update();
+        spl_autoload_register(function($class){
+            $class = strtolower($class);
+            if(!isset(self::$autoLoad[$class]) || !file_exists(self::$autoLoad[$class].'/'.$class.'.php')){
+                self::dumpAutoLoad();
+            }
+            if(isset(self::$autoLoad[$class])) require_once self::$autoLoad[$class].'/'.$class.'.php'.'';
+        });
     }
-}
 
-##########
-## declare Controllers loader
-final class Controllers{
-    public function __get($fullPath){
-        $fullPath = explode('/', $fullPath);
-        $name = array_pop($fullPath);
-        $path = 'app/controllers/'.implode('/', $fullPath);
-        if(!file_exists($path.'/'.$name.'.php')) Errors::make('Loader failed! The controller `'.$name.'` not found in `'.$path.'`' ,true);
-        else{
-            require_once $path.'/'.$name.'.php'.'';
-            return $this->$name = (class_exists($name, false))? new $name:true;
+    static public function update(){
+        $autoLoad = array();
+        require 'app/settings/AutoLoad.php';
+        self::$autoLoad = $autoLoad;
+    }
+
+    static public function dumpAutoLoad(){
+        $folders = array(
+            'controllers',
+            'helpers',
+            'libraries',
+            'models'
+        );
+        $cleanAppFiles = false;
+        $arrayContent = '';
+        $appFiles = array(
+            'system/core/config.php',
+            'system/core/views.php'
+        );
+        foreach($folders as $folderName){
+            $appFiles = array_merge($appFiles, self::scanFolder('app/'.$folderName));
         }
-        return false;
-    }
-}
-
-##########
-## declare Models loader
-final class Models{
-    public function __get($fullPath){
-        $fullPath = explode('/', $fullPath);
-        $name = array_pop($fullPath);
-        $path = 'app/models/'.implode('/', $fullPath);
-        if(!file_exists($path.'/'.$name.'.php')) Errors::make('Loader failed! The model `'.$name.'` not found in `'.$path.'`' ,true);
-        else{
-            require_once $path.'/'.$name.'.php'.'';
-            return $this->$name = (class_exists($name, false))? new $name:true;
-        }
-        return false;
-    }
-}
-
-##########
-## declare Views loader
-final class Views{
-    public static function load($filePath, $variablesArray=NULL,$resultIntoVariable=FALSE){
-        $filePath = 'app/views/'.$filePath.'.php';
-        if(!file_exists($filePath)) Errors::make('The view file: `'.$filePath.'` is not found' ,true);
-        else{
-            if(is_array($variablesArray)){
-                foreach($variablesArray as $key => $value){
-                    $$key = $value;
+        if(is_array($appFiles)){
+            foreach($appFiles as $file){
+                $file = explode('.', $file);
+                if(array_pop($file) == 'php'){
+                    $path = explode('/', implode('.',$file));
+                    $key = array_pop($path);
+                    if(isset($cleanAppFiles[$key])){
+                        if(!isset(self::$duplicate[$key])) self::$duplicate[$key][] = $cleanAppFiles[$key];
+                        self::$duplicate[$key][] = implode('/',$path);
+                        continue;
+                    }
+                    $cleanAppFiles[$key] = implode('/',$path);
+                    if(!$arrayContent == '') $arrayContent .= ','."\n";
+                    $arrayContent .= "\t".'\''.$key.'\' => \''.$cleanAppFiles[$key].'\'';
                 }
             }
-            ob_start();
-            include $filePath.'';
-            $file = ob_get_contents();
-            ob_end_clean();
-            if($resultIntoVariable) return $file;
-            else{
-                Output::push('view', $file);
-                return true;
+        }
+        $file = 'app\settings\AutoLoad.php';
+        $content = '<?php'."\n";
+        if($cleanAppFiles){
+            $content .= '$autoLoad = array('."\n";
+            $content .= $arrayContent;
+            $content .= "\n".');';
+        }
+        file_put_contents($file, $content);
+        self::update();
+    }
+
+    static public function scanFolder($folderPath){
+        $result = array();
+        $folderFiles = array_diff(scandir($folderPath), Array('.','..'));
+        foreach($folderFiles as $value){
+            $value = $folderPath.'/'.$value;
+            if(is_dir($value)){
+               $result =  array_merge($result, self::scanFolder($value));
             }
+            else $result[] = $value;
         }
-        return false;
-    }
-}
-
-##########
-## declare Helpers loader
-final class Helpers{
-    public function __get($fullPath){
-        $fullPath = explode('/', $fullPath);
-        $name = array_pop($fullPath);
-        $path = 'app/helpers/'.implode('/', $fullPath);
-        if(!file_exists($path.'/'.$name.'.php')) Errors::make('Loader failed! The helper `'.$name.'` not found in `'.$path.'`' ,true);
-        else{
-            require_once $path.'/'.$name.'.php'.'';
-            return $this->$name = (class_exists($name, false))? new $name:true;
-        }
-        return false;
-    }
-}
-
-##########
-## declare Libraries loader
-final class Libraries{
-    public function __get($fullPath){
-        $fullPath = explode('/', $fullPath);
-        $name = array_pop($fullPath);
-        $path = 'app/libraries/'.implode('/', $fullPath);
-        if(!file_exists($path.'/'.$name.'.php')) Errors::make('Loader failed! The library `'.$name.'` not found in `'.$path.'`' ,true);
-        else{
-            require_once $path.'/'.$name.'.php'.'';
-            return $this->$name = (class_exists($name, false))? new $name:true;
-        }
-        return false;
+        return $result;
     }
 }

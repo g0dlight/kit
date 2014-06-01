@@ -6,48 +6,46 @@
 spl_autoload_extensions('.php');
 spl_autoload_register();
 
-require_once 'system/core/Shutdown.php';
-
-use System\Core\Config;
+use System\Core\Loader;
 use System\Core\Errors;
 use System\Core\Output;
-use System\Core\Loader;
+
+require_once 'system/core/Shutdown.php';
+
+
 
 final class Kit{
-    static public $AutoLoad = false;
     static public $Router = false;
     static public $UrlParts = array();
     static public $Controller = array('Stage'=>'none','Path'=>'app/controllers/','Name'=>'undefined','Method'=>'index');
 
     function __construct(){
+        new Errors();
+        new Loader();
         new Config();
+        new Output();
 
         $this->getSettings();
         $this->getUrlParts();
         $this->getController();
-
-        new Errors();
-        new Output();
-        new Loader();
 
         if(self::$Controller['Name'] == 'undefined') Errors::make('Default Controller not found (`'.Config::get('default_controller').'`)', true);
         elseif(isset(self::$Router['error'])) Errors::make('Controller not found (`'.self::$Controller['Path'].self::$Controller['Name'].'`) Router `'.self::$Router['error'].'`', true);
         else{
             require_once self::$Controller['Path'].self::$Controller['Name'].'.php'.'';
             self::$Controller['Stage'] = 'file loaded';
-            Loader::$Controllers->{self::$Controller['Name']} = true;
             if(class_exists(self::$Controller['Name'], false)){
                 ob_start();
-                Loader::$Controllers->{self::$Controller['Name']} = new self::$Controller['Name']();
+                Loader::$controller = new self::$Controller['Name']();
                 Output::push('constructor', ob_get_contents());
                 ob_end_clean();
                 self::$Controller['Stage'] = 'class loaded';
-                if(isset(self::$UrlParts[0]) && method_exists(Loader::$Controllers->{self::$Controller['Name']}, self::$UrlParts[0])){
+                if(isset(self::$UrlParts[0]) && method_exists(Loader::$controller, self::$UrlParts[0])){
                     self::$Controller['Method'] = array_shift(self::$UrlParts);
                 }
-                if(is_callable(array(Loader::$Controllers->{self::$Controller['Name']},self::$Controller['Method']))){
+                if(is_callable(array(Loader::$controller, self::$Controller['Method']))){
                     ob_start();
-                    call_user_func_array(array(Loader::$Controllers->{self::$Controller['Name']}, self::$Controller['Method']), self::$UrlParts);
+                    call_user_func_array(array(Loader::$controller, self::$Controller['Method']), self::$UrlParts);
                     Output::push('method', ob_get_contents());
                     ob_end_clean();
                     self::$Controller['Stage'] = 'method loaded';
@@ -57,22 +55,14 @@ final class Kit{
         }
     }
 
+    static public function dumpAutoLoad(){
+        Loader::dumpAutoLoad();
+    }
+
     private function getSettings(){
         $router = false;
-        $autoLoad = false;
-
         require_once 'app/settings/Router.php';
-        require_once 'app/settings/AutoLoad.php';
-
-        ############
-        ## Router ##
-        ############
         self::$Router = $router;
-
-        ##############
-        ## AutoLoad ##
-        ##############
-        self::$AutoLoad = $autoLoad;
     }
     // Get and check the default settings for `Config` && `Router` && `AutoLoad`.
 

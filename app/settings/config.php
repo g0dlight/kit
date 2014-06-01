@@ -36,19 +36,4 @@ $config['error_output'] = '';
 */
 $config['default_controller'] = 'welcome';
 
-/*
-|--------------------------------------------------------------------------
-| Load Kit instrument
-|--------------------------------------------------------------------------
-|
-| Set -> true || false;
-| For loading Kit instruments to the Primary class
-|
-*/
-$config['instruments']['controllers'] = true;
-$config['instruments']['models'] = true;
-$config['instruments']['views'] = true;
-$config['instruments']['helpers'] = true;
-$config['instruments']['libraries'] = true;
-
 ##########################################################################################

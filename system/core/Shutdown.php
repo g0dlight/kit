@@ -3,7 +3,7 @@
  * #### Warning this is a SYSTEM FILE ####
  */
 
-use System\Core\Config;
+use System\Core\Loader;
 use System\Core\Errors;
 use System\Core\Output;
 
@@ -23,7 +23,8 @@ function KitShutdown($workingDir){
         $path = explode('/', Config::get('error_output'));
         $method = array_pop($path);
         $controller = implode('/', $path);
-        System\Core\Loader::$Controllers->$controller->$method();
+        Loader::$errorHandler = new $controller;
+        Loader::$errorHandler->$method();
     }
     else{
         Output::flush();
