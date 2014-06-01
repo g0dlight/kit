@@ -1,0 +1,11 @@
+RewriteEngine On
+# RewriteBase /
+
+# if the first parameter after current directory is:
+# index.php
+# robots.txt
+# files (folder)
+# treat it as normal file instead of rewrite it
+
+RewriteCond $1 !^(index\.php|robots\.txt|files)
+RewriteRule ^(.*)$ index.php/$1 [L]

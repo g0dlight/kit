@@ -15,13 +15,19 @@ final class Loader{
 
     function __construct(){
         self::update();
-        spl_autoload_register(function($class){
-            $class = strtolower($class);
-            if(!isset(self::$autoLoad[$class]) || !file_exists(self::$autoLoad[$class].'/'.$class.'.php')){
-                self::dumpAutoLoad();
-            }
-            if(isset(self::$autoLoad[$class])) require_once self::$autoLoad[$class].'/'.$class.'.php'.'';
-        });
+        spl_autoload_register(__NAMESPACE__ .'\Loader::get');
+    }
+
+    static public function get($class){
+        $class = strtolower($class);
+        if(!isset(self::$autoLoad[$class]) || !file_exists(self::$autoLoad[$class].'/'.$class.'.php')){
+            self::dumpAutoLoad();
+        }
+        if(isset(self::$autoLoad[$class])){
+            require_once self::$autoLoad[$class].'/'.$class.'.php'.'';
+            return true;
+        }
+        else return false;
     }
 
     static public function update(){
@@ -41,6 +47,7 @@ final class Loader{
         $arrayContent = '';
         $appFiles = array(
             'system/core/config.php',
+            'system/core/router.php',
             'system/core/views.php'
         );
         foreach($folders as $folderName){
@@ -58,17 +65,17 @@ final class Loader{
                         continue;
                     }
                     $cleanAppFiles[$key] = implode('/',$path);
-                    if(!$arrayContent == '') $arrayContent .= ','."\n";
+                    if(!$arrayContent == '') $arrayContent .= ','.PHP_EOL;
                     $arrayContent .= "\t".'\''.$key.'\' => \''.$cleanAppFiles[$key].'\'';
                 }
             }
         }
         $file = 'app\settings\AutoLoad.php';
-        $content = '<?php'."\n";
+        $content = '<?php'.PHP_EOL;
         if($cleanAppFiles){
-            $content .= '$autoLoad = array('."\n";
+            $content .= '$autoLoad = array('.PHP_EOL;
             $content .= $arrayContent;
-            $content .= "\n".');';
+            $content .= PHP_EOL.');';
         }
         file_put_contents($file, $content);
         self::update();
