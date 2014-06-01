@@ -8,7 +8,7 @@ namespace System\Core;
 if(!defined('KIT_KEY')) exit('Access denied.');
 
 final class Errors{
-    static public $catch = array();
+    public static $catch = array();
 
     function __construct(){
         ini_set('error_reporting', E_ALL);
@@ -18,7 +18,7 @@ final class Errors{
         set_error_handler(array('System\Core\Errors', 'nonfatal'));
     }
 
-    static public function getTitle($errorNumber){
+    public static function getTitle($errorNumber){
         $errorType = array(
             E_ERROR              => 'Error',
             E_WARNING            => 'Warning',
@@ -38,7 +38,7 @@ final class Errors{
         else return 'Unknown Error';
     }
 
-    static public function make($message, $fatal=false){
+    public static function make($message, $fatal=false){
         $backTrace = debug_backtrace()[1];
         if($fatal){
             $error['type'] = 1;
@@ -51,14 +51,14 @@ final class Errors{
         else self::nonfatal(1, $message, $backTrace['file'], $backTrace['line']);
     }
 
-    static public function fatal($error){
+    public static function fatal($error){
         $error['fatal'] = true;
         $error['title'] = self::getTitle($error['type']);
         $error['shortFile'] = str_replace(getcwd(), '', $error['file']);
         self::$catch[] = $error;
     }
 
-    static public function nonfatal($errorNumber, $errorMessage, $errorFileName, $errorLineNumber){
+    public static function nonfatal($errorNumber, $errorMessage, $errorFileName, $errorLineNumber){
         $error['fatal'] = false;
         $error['title'] = self::getTitle($errorNumber);
         $error['type'] = $errorNumber;
@@ -70,7 +70,7 @@ final class Errors{
         self::$catch[] = $error;
     }
 
-    static public function show(){
+    public static function show(){
         require_once 'system/views/error.php';
     }
 }

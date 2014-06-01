@@ -8,13 +8,13 @@ namespace System\Core;
 if(!defined('KIT_KEY')) exit('Access denied.');
 
 final class Output{
-    static private $userRouter = '';
-    static private $userConstructor = '';
-    static private $userMethod = '';
-    static private $userViews = '';
-    static private $obStuck = '';
+    private static $userRouter = '';
+    private static $userConstructor = '';
+    private static $userMethod = '';
+    private static $userViews = '';
+    private static $obStuck = '';
 
-    static public function push($whereTo, $content){
+    public static function push($whereTo, $content){
         switch($whereTo){
             case 'userRouter':
                 self::$userRouter .= $content;
@@ -34,7 +34,7 @@ final class Output{
         }
     }
 
-    static public function flush(){
+    public static function flush(){
         echo self::$userRouter;
         echo self::$userConstructor;
         echo self::$userMethod;

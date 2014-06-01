@@ -4,7 +4,7 @@
  */
 
 final class Config{
-    static private $Config;
+    private static $Config;
 
     function __construct(){
         $config = false;
@@ -23,11 +23,11 @@ final class Config{
             self::$Config['default_controller'] = 'undefined';
     }
 
-    static public function set($name, $value){
+    public static function set($name, $value){
         self::$Config[$name] = $value;
     }
 
-    static public function get($name){
+    public static function get($name){
         if(!isset(self::$Config[$name])){
             return null;
         }

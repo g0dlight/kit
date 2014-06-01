@@ -8,17 +8,17 @@ namespace System\Core;
 if(!defined('KIT_KEY')) exit('Access denied.');
 
 final class Loader{
-    static public $controller = false;
-    static public $errorHandler = false;
-    static public $autoLoad = false;
-    static public $duplicate = false;
+    public static $controller = false;
+    public static $errorHandler = false;
+    public static $autoLoad = false;
+    public static $duplicate = false;
 
     function __construct(){
         self::update();
         spl_autoload_register(__NAMESPACE__ .'\Loader::get');
     }
 
-    static public function get($class){
+    public static function get($class){
         $class = strtolower($class);
         if(!isset(self::$autoLoad[$class]) || !file_exists(self::$autoLoad[$class].'/'.$class.'.php')){
             self::dumpAutoLoad();
@@ -30,13 +30,13 @@ final class Loader{
         else return false;
     }
 
-    static public function update(){
+    public static function update(){
         $autoLoad = array();
         require 'app/settings/AutoLoad.php';
         self::$autoLoad = $autoLoad;
     }
 
-    static public function dumpAutoLoad(){
+    public static function dumpAutoLoad(){
         $folders = array(
             'controllers',
             'helpers',
@@ -81,7 +81,7 @@ final class Loader{
         self::update();
     }
 
-    static public function scanFolder($folderPath){
+    public static function scanFolder($folderPath){
         $result = array();
         $folderFiles = array_diff(scandir($folderPath), Array('.','..'));
         foreach($folderFiles as $value){

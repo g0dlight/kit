@@ -44,7 +44,11 @@ final class Kit{
         }
     }
 
-    static public function dumpAutoLoad(){
+    public static function dumpAutoLoad(){
         Loader::dumpAutoLoad();
+    }
+
+    public static function error($message, $fatal=false){
+        Errors::make($message, $fatal);
     }
 }
