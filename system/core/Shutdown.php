@@ -24,7 +24,7 @@ function KitShutdown($workingDir){
         $method = array_pop($path);
         $controller = implode('/', $path);
         Loader::$errorHandler = new $controller;
-        Loader::$errorHandler->$method();
+        Loader::$errorHandler->$method(Errors::$catch);
     }
     else{
         Output::flush();
