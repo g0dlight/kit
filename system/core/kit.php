@@ -22,25 +22,22 @@ final class Kit{
         new Router();
 
         Router::getController();
-        if(Router::$Controller == 'undefined') Errors::make('Default Controller not found (`'.Config::get('default_controller').'`)', true);
-        else{
-            if(isset(Router::$Forbidden[Router::$Controller]) && Router::$Forbidden[Router::$Controller] == '') Errors::make('Access Forbidden (`'.Router::$Controller.'`)', true);
-            if(class_exists(Router::$Controller)){
+        if(isset(Router::$Controller['undefined'])) Errors::make('Controller (`'.Router::$Controller['undefined'].'`) not found', true);
+        elseif(isset(Router::$Forbidden[Router::$Controller]) && Router::$Forbidden[Router::$Controller] == '') Errors::make('Access Forbidden (`'.Router::$Controller.'`)', true);
+        elseif(class_exists(Router::$Controller)){
+            ob_start();
+            Loader::$controller = new Router::$Controller();
+            Output::push('constructor', ob_get_contents());
+            ob_end_clean();
+            Router::getMethod();
+            if(isset(Router::$Method['undefined'])) Errors::make('Method (`'.Router::$Controller.'@'.Router::$Method['undefined'].'`) not found', true);
+            elseif(isset(Router::$Forbidden[Router::$Controller]) && Router::$Forbidden[Router::$Controller] == Router::$Method) Errors::make('Access Forbidden (`'.Router::$Controller.'@'.Router::$Method.'`)', true);
+            else{
                 ob_start();
-                Loader::$controller = new Router::$Controller();
-                Output::push('constructor', ob_get_contents());
+                call_user_func_array(array(Loader::$controller, Router::$Method), Router::$UrlParts);
+                Output::push('method', ob_get_contents());
                 ob_end_clean();
-                Router::getMethod();
-                if(isset(Router::$Forbidden[Router::$Controller]) && Router::$Forbidden[Router::$Controller] == Router::$Method) Errors::make('Access Forbidden (`'.Router::$Controller.'@'.Router::$Method.'`)', true);
-                if(is_callable(array(Loader::$controller, Router::$Method))){
-                    ob_start();
-                    call_user_func_array(array(Loader::$controller, Router::$Method), Router::$UrlParts);
-                    Output::push('method', ob_get_contents());
-                    ob_end_clean();
-                }
-                else Errors::make('Method (`'.Router::$Method.'`) not found', true);
             }
-            elseif(Router::$Controller) Errors::make('Controller not found (`'.Router::$Controller.'`) ', true);
         }
     }
 

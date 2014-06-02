@@ -19,7 +19,7 @@ function KitShutdown($workingDir){
     }
     // catch fatal error and report to Error class
     if(Config::get('environment') == 'development' && Errors::$catch) Errors::show();
-    elseif(Config::get('error_output') != '' && Config::get('environment') == 'production' && Errors::$catch){
+    elseif(Config::get('error_output') != '' && Errors::$catch){
         $path = explode('/', Config::get('error_output'));
         $method = array_pop($path);
         $controller = implode('/', $path);

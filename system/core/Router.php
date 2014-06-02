@@ -20,39 +20,72 @@ if(!defined('KIT_KEY')) exit('Access denied.');
         }
 
         public static function getController(){
-            if(self::$Controller != 'undefined') return;
-            $path = 'app/controllers/';
-            $parts = false;
-            foreach(self::$UrlParts as $value){
-                if(file_exists($path.$value.'.php')){
-                    self::$Controller = array_shift(self::$UrlParts);
-                    return;
+            if(!self::$Controller) return;
+            if(self::$Controller != 'undefined'){
+                $controller = self::$Controller;
+                self::$Controller = 'undefined';
+            }
+            elseif(!empty(self::$UrlParts[0]) && $value = self::checkUrl()){
+                self::$Controller = $value;
+                return;
+            }
+            else $controller = \Config::get('default_controller');
+
+            if(Loader::get($controller)){
+                self::$Controller = $controller;
+                return;
+            }
+            self::$Controller = array('undefined'=>$controller);
+        }
+
+        private static function checkUrl(){
+            $count = 0;
+            do{
+                $count++;
+                foreach(self::$UrlParts as $urlNum => $urlPart){
+                    if(isset(Loader::$autoLoad[$urlPart])){
+                        $pathFile = explode('/',Loader::$autoLoad[$urlPart]);
+                        $pathUrl = array_slice(self::$UrlParts, 0, $urlNum);
+                        array_unshift($pathUrl, 'app','controllers');
+                        if(implode('/',$pathFile) == implode('/',$pathUrl)){
+                            self::$UrlParts = array_slice(self::$UrlParts, $urlNum+1);
+                            return $urlPart;
+                        }
+                    }
                 }
-                elseif(file_exists($path.$value.'/')){
-                    $parts[] = array_shift(self::$UrlParts);
-                    $path .= $value.'/';
-                }
-                else break;
+                if(\Config::get('environment') == 'development') Loader::dumpAutoLoad();
+                else return;
             }
-            if($parts){
-                self::$UrlParts = array_merge($parts, self::$UrlParts);
-                $path = 'app/controllers/';
-            }
-            if(file_exists($path.\Config::get('default_controller').'.php')){
-                $fullPath = explode('/', \Config::get('default_controller'));
-                self::$Controller = array_pop($fullPath);
-            }
+            while($count < 2);
+            return false;
         }
 
         public static function getMethod(){
-            if(self::$Method != 'undefined') return;
-            self::$Method = 'index';
-            if(isset(self::$UrlParts[0]) && method_exists(Loader::$controller, self::$UrlParts[0])){
-                if(substr(self::$UrlParts[0], 0, 2) != '__') self::$Method = array_shift(self::$UrlParts);
+            if(!self::$Method) return;
+            $methods = array();
+            if(self::$Method != 'undefined'){
+                $methods['router'] = self::$Method;
+                self::$Method = 'undefined';
+            }
+            else{
+                if(!empty(self::$UrlParts[0])) $methods['url'] = self::$UrlParts[0];
+                $methods['default'] = 'index';
+            }
+            foreach($methods as $key => $method){
+                if(method_exists(Loader::$controller, $method)){
+                    if($key == 'url') array_shift(self::$UrlParts);
+                    if(!is_callable(array(Loader::$controller, $method)) || substr($method, 0, 2) == '__'){
+                        Router::$Forbidden[self::$Controller] = $method;
+                    }
+                    self::$Method = $method;
+                    return;
+                }
+                self::$Method = array('undefined'=>$method);
             }
         }
 
         private function checkRoute(){
+            if(empty(self::$UrlParts[0])) return;
             if(isset(self::$Routes[self::$UrlParts[0]])){
                 self::$Controller = false;
                 self::$Method = false;
@@ -93,7 +126,7 @@ if(!defined('KIT_KEY')) exit('Access denied.');
             $accessPath = explode('/', $accessPath);
             array_shift($accessPath);
             if($accessPath[0] == NULL) array_shift($accessPath);
-            if(!count($accessPath)) self::$UrlParts = array('');
+            if(!count($accessPath)) self::$UrlParts = array();
             else self::$UrlParts = $accessPath;
             return true;
         }

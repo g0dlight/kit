@@ -21,7 +21,7 @@ final class Loader{
     public static function get($class){
         $class = strtolower($class);
         if(!isset(self::$autoLoad[$class]) || !file_exists(self::$autoLoad[$class].'/'.$class.'.php')){
-            self::dumpAutoLoad();
+            if(\Config::get('environment') == 'development') self::dumpAutoLoad();
         }
         if(isset(self::$autoLoad[$class])){
             require_once self::$autoLoad[$class].'/'.$class.'.php'.'';
@@ -65,10 +65,21 @@ final class Loader{
                         continue;
                     }
                     $cleanAppFiles[$key] = implode('/',$path);
-                    if(!$arrayContent == '') $arrayContent .= ','.PHP_EOL;
+                    if($arrayContent != '') $arrayContent .= ','.PHP_EOL;
                     $arrayContent .= "\t".'\''.$key.'\' => \''.$cleanAppFiles[$key].'\'';
                 }
             }
+        }
+        if(self::$duplicate){
+            $errorMsg = '';
+            foreach(self::$duplicate as $name => $paths){
+                $errorMsg .= '<br />`'.$name.'` -> ';
+                foreach($paths as $key => $path){
+                    if($key) $errorMsg .= '& ';
+                    $errorMsg .= '`'.$path.'` ';
+                }
+            }
+            Errors::make('Duplicate files! more details in the list:'.$errorMsg, true);
         }
         $file = 'app\settings\AutoLoad.php';
         $content = '<?php'.PHP_EOL;

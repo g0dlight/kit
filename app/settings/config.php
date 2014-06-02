@@ -18,10 +18,9 @@ $config['environment'] = 'development';
 | Error output
 |--------------------------------------------------------------------------
 |
-| when the environment set to `production` by Default Kit stop when error occurred.
-| Set here controller's method to override the default and run it when error occurred.
-| Pattern: controller/method
-| Example: welcome/index
+| Set here controller's method to override the default error handler.
+| Pattern: controller@method
+| Example: welcome@index
 |
 */
 $config['error_output'] = '';
