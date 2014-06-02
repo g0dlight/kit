@@ -16,7 +16,7 @@ if(!defined('KIT_KEY')) exit('Access denied.');
 
         function __construct(){
             $this->getUrlParts();
-            $this->check();
+            $this->checkRoute();
         }
 
         public static function getController(){
@@ -52,15 +52,23 @@ if(!defined('KIT_KEY')) exit('Access denied.');
             }
         }
 
-        private function check(){
+        private function checkRoute(){
             if(isset(self::$Routes[self::$UrlParts[0]])){
                 self::$Controller = false;
                 self::$Method = false;
-                $route = array_shift(self::$UrlParts);
-                $route = self::$Routes[$route];
+                $routeName = array_shift(self::$UrlParts);
+                $route = self::$Routes[$routeName][0];
                 if(is_callable($route)){
                     ob_start();
-                    $route = call_user_func_array($route, self::$UrlParts);
+                    $UrlParts = (int)self::$Routes[$routeName][1];
+                    $functionVars = array();
+                    if($UrlParts > 0){
+                        while($UrlParts > 0){
+                            $functionVars[] = array_shift(self::$UrlParts);
+                            $UrlParts--;
+                        }
+                    }
+                    $route = call_user_func_array($route, $functionVars);
                     Output::push('constructor', ob_get_contents());
                     ob_end_clean();
                 }
@@ -96,8 +104,8 @@ namespace {
     use System\Core\Router;
 
     final class Route{
-        public static function set($path, $action){
-            Router::$Routes[$path] = $action;
+        public static function set($path, $action, $UrlParts=0){
+            Router::$Routes[$path] = array($action, $UrlParts);
         }
 
         public static function block($controller, $method=''){
