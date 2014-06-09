@@ -66,7 +66,6 @@ final class Errors{
         $error['file'] = $errorFileName;
         $error['shortFile'] = str_replace(getcwd(), '', $errorFileName);
         $error['line'] = $errorLineNumber;
-        //$error['backtrace'] = debug_backtrace();
         self::$catch[] = $error;
     }
 

@@ -7,17 +7,17 @@ spl_autoload_extensions('.php');
 spl_autoload_register();
 
 use System\Core\Loader;
+use System\Core\Shutdown;
 use System\Core\Errors;
 use System\Core\Output;
 use System\Core\Router;
 
-require_once 'system/core/Shutdown.php';
-
 final class Kit{
     function __construct(){
         new Loader();
-        new Errors();
         new Config();
+        new Shutdown();
+        new Errors();
         new Output();
         new Router();
 

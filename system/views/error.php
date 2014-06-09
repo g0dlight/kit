@@ -20,15 +20,15 @@
         </div>
         <div class="box rightBox">
             <div class="boxName title"><b>GET</b></div>
-            <div class="more"><?php var_dump($_GET); ?></div>
+            <div class="more"><?php if(isset($_GET)) var_dump($_GET); ?></div>
             <div class="boxName title"><b>POST</b></div>
-            <div class="more"><?php var_dump($_POST); ?></div>
+            <div class="more"><?php if(isset($_POST)) var_dump($_POST); ?></div>
             <div class="boxName title"><b>FILES</b></div>
-            <div class="more"><?php var_dump($_FILES); ?></div>
+            <div class="more"><?php if(isset($_FILES)) var_dump($_FILES); ?></div>
             <div class="boxName title"><b>SESSION</b></div>
-            <div class="more"><?php var_dump($_SESSION); ?></div>
+            <div class="more"><?php if(isset($_SESSION)) var_dump($_SESSION); ?></div>
             <div class="boxName title"><b>COOKIE</b></div>
-            <div class="more"><?php var_dump($_COOKIE); ?></div>
+            <div class="more"><?php if(isset($_COOKIE)) var_dump($_COOKIE); ?></div>
         </div>
         <p class="clear"></p>
     </div>
