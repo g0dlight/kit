@@ -17,7 +17,7 @@ final class Views{
                 }
             }
             ob_start();
-            include $filePath.'';
+            include ''.$filePath.'';
             $file = ob_get_contents();
             ob_end_clean();
             if($resultIntoVariable) return $file;

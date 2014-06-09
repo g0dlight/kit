@@ -11,6 +11,10 @@ final class Loader{
     public static $controller = false;
     public static $errorHandler = false;
     public static $autoLoad = false;
+    public static $reserved = array(
+        'kit','loader','shutdown','errors','router','output',
+        'config','route','views'
+    );
     public static $duplicate = false;
 
     function __construct(){
@@ -21,7 +25,7 @@ final class Loader{
     public static function get($class){
         $class = strtolower($class);
         if(!isset(self::$autoLoad[$class]) || !file_exists(self::$autoLoad[$class].'/'.$class.'.php')){
-            if(\Config::get('environment') == 'development') self::dumpAutoLoad();
+            if($class == 'config' || \Config::get('environment') == 'development') self::dumpAutoLoad();
         }
         if(isset(self::$autoLoad[$class])){
             require_once self::$autoLoad[$class].'/'.$class.'.php'.'';
@@ -31,25 +35,25 @@ final class Loader{
     }
 
     public static function update(){
+        $system = array(
+            'config' => 'system/shell',
+            'route' => 'system/shell',
+            'views' => 'system/shell'
+        );
         $autoLoad = array();
         require 'app/settings/AutoLoad.php';
-        self::$autoLoad = $autoLoad;
+        self::$autoLoad = array_merge($system, (array)$autoLoad);
     }
 
     public static function dumpAutoLoad(){
         $folders = array(
             'controllers',
             'helpers',
-            'libraries',
             'models'
         );
         $cleanAppFiles = false;
         $arrayContent = '';
-        $appFiles = array(
-            'system/core/config.php',
-            'system/core/router.php',
-            'system/core/views.php'
-        );
+        $appFiles = array();
         foreach($folders as $folderName){
             $appFiles = array_merge($appFiles, self::scanFolder('app/'.$folderName));
         }
@@ -59,6 +63,10 @@ final class Loader{
                 if(array_pop($file) == 'php'){
                     $path = explode('/', implode('.',$file));
                     $key = array_pop($path);
+                    if(in_array($key, self::$reserved)){
+                        Errors::make($key.' is Reserved file name', true);
+                        continue;
+                    }
                     if(isset($cleanAppFiles[$key])){
                         if(!isset(self::$duplicate[$key])) self::$duplicate[$key][] = $cleanAppFiles[$key];
                         self::$duplicate[$key][] = implode('/',$path);
@@ -72,7 +80,7 @@ final class Loader{
         }
         if(self::$duplicate){
             $errorMsg = '';
-            foreach(self::$duplicate as $name => $paths){
+            foreach((array)self::$duplicate as $name => $paths){
                 $errorMsg .= '<br />`'.$name.'` -> ';
                 foreach($paths as $key => $path){
                     if($key) $errorMsg .= '& ';
@@ -100,7 +108,7 @@ final class Loader{
             if(is_dir($value)){
                $result =  array_merge($result, self::scanFolder($value));
             }
-            else $result[] = $value;
+            else $result[] = strtolower($value);
         }
         return $result;
     }
