@@ -10,11 +10,13 @@ if(!defined('KIT_KEY')) exit('Access denied.');
 final class Router{
     public static $Routes = array();
     public static $Forbidden = array();
+    public static $Request = 'undefined';
     public static $UrlParts = array();
     public static $Controller = 'undefined';
     public static $Method = 'undefined';
 
     function __construct(){
+        new \Route();
         $this->getUrlParts();
         $this->checkRoute();
     }
@@ -71,17 +73,18 @@ final class Router{
             if(!empty(self::$UrlParts[0])) $methods['url'] = self::$UrlParts[0];
             $methods['default'] = 'index';
         }
+        $method = false;
         foreach($methods as $key => $method){
             if(method_exists(Loader::$controller, $method)){
                 if($key == 'url') array_shift(self::$UrlParts);
-                if(!is_callable(array(Loader::$controller, $method)) || substr($method, 0, 2) == '__'){
+                if(!is_callable(array(Loader::$controller, $method)) || substr($method, 0, 1) == '_'){
                     Router::$Forbidden[self::$Controller] = $method;
                 }
                 self::$Method = $method;
                 return;
             }
-            self::$Method = array('undefined'=>$method);
         }
+        self::$Method = array('undefined'=>$method);
     }
 
     private function checkRoute(){
