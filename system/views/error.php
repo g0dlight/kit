@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <?php require_once 'system\views\css.php'; ?>
+    <?php require_once 'system/views/css.php'; ?>
     <title>Oops</title>
 </head>
 <body><div class="container">
@@ -12,7 +12,7 @@
         foreach(self::$catch as $error){
             echo '<div class="error">';
             echo '<div class="title"><b>'.$error['title'].':</b> '.$error['message'].'</div>';
-            echo '<div class="details">on file: <b>'.$error['shortFile'].'</b> in line: <b>'.$error['line'].'</b></div>';
+            echo '<div class="details">on file: <b>'.$error['file'].'</b> in line: <b>'.$error['line'].'</b></div>';
             if($error['fatal']) echo '<div class="fatal">This is a fatal error! the script can\'t proceed!</div>';
             echo '</div>';
         }

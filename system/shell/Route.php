@@ -17,7 +17,7 @@ final class Route{
     public static function demandRequest($requestType, $callBack=''){
         if(strtolower($requestType) != strtolower($_SERVER['REQUEST_METHOD'])){
             if(is_callable($callBack)) $callBack();
-            else Kit::error('Access Forbidden, demand '.$requestType.' request', true);
+            else throw new KitException('Access Forbidden, demand '.$requestType.' request');
         }
     }
 

@@ -15,7 +15,8 @@ final class Shutdown{
     public static function execute($workingDir){
         chdir($workingDir);
         $errorCatch = error_get_last();
-        if(isset($errorCatch['type'])){
+        $notFatalError = array(E_WARNING);
+        if(isset($errorCatch['type']) && !in_array($errorCatch['type'], $notFatalError)){
             while(ob_get_status()['level']){
                 Output::push('obStuck',ob_get_contents());
                 ob_end_clean();

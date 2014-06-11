@@ -12,36 +12,34 @@ final class Loader{
     public static $errorHandler = false;
     public static $autoLoad = false;
     public static $reserved = array(
-        'kit','loader','shutdown','errors','router','output',
+        'kit','loader','kitexception','shutdown','errors','router','output',
         'config','route','views'
     );
     public static $duplicate = false;
 
     function __construct(){
+        spl_autoload_register(array('System\Core\Loader', 'get'));
         self::update();
-        spl_autoload_register(__NAMESPACE__ .'\Loader::get');
     }
 
     public static function get($class){
         $class = strtolower($class);
         if(!isset(self::$autoLoad[$class]) || !file_exists(self::$autoLoad[$class].'/'.$class.'.php')){
-            if($class == 'config' || \Config::get('environment') == 'development') self::dumpAutoLoad();
+            if(\Config::get('environment') == 'development') self::dumpAutoLoad();
         }
-        if(isset(self::$autoLoad[$class])){
-            require_once self::$autoLoad[$class].'/'.$class.'.php'.'';
-            return true;
-        }
+        if(@include_once self::$autoLoad[$class].'/'.$class.'.php'.'') return true;
         else return false;
     }
 
     public static function update(){
         $system = array(
+            'kitexception' => 'system/core',
             'config' => 'system/shell',
             'route' => 'system/shell',
             'views' => 'system/shell'
         );
         $autoLoad = array();
-        require 'app/settings/AutoLoad.php';
+        @include 'app/settings/AutoLoad.php';
         self::$autoLoad = array_merge($system, (array)$autoLoad);
     }
 
@@ -64,7 +62,7 @@ final class Loader{
                     $path = explode('/', implode('.',$file));
                     $key = array_pop($path);
                     if(in_array($key, self::$reserved)){
-                        Errors::make($key.' is Reserved file name', true);
+                        throw new \KitException('`'.$key.'` is Reserved file name');
                         continue;
                     }
                     if(isset($cleanAppFiles[$key])){
@@ -79,17 +77,19 @@ final class Loader{
             }
         }
         if(self::$duplicate){
-            $errorMsg = '';
+            $errorMsg = '<ul>';
             foreach((array)self::$duplicate as $name => $paths){
-                $errorMsg .= '<br />`'.$name.'` -> ';
+                $errorMsg .= '<li>`'.$name.'` <b>IN</b> ';
                 foreach($paths as $key => $path){
                     if($key) $errorMsg .= '& ';
                     $errorMsg .= '`'.$path.'` ';
                 }
+                $errorMsg .= '</li>';
             }
-            Errors::make('Duplicate files! more details in the list:'.$errorMsg, true);
+            $errorMsg .= '</ul>';
+            throw new \KitException('Duplicate files!'.$errorMsg);
         }
-        $file = 'app\settings\AutoLoad.php';
+        $file = 'app/settings/AutoLoad.php';
         $content = '<?php'.PHP_EOL;
         if($cleanAppFiles){
             $content .= '$autoLoad = array('.PHP_EOL;

@@ -27,10 +27,10 @@
         background-color:#b3d3d0; margin-bottom:4px; padding:4px;
     }
     .fatal{
-        color:#cc0000; font-weight:bold; text-align:center;
+        background-color:#7a1915; color:#ffffff; font-weight:bold; text-align:center; padding:8px;
     }
     .more{
-        background-color:#e7e7e7; margin-bottom:0px; padding:4px;
+        background-color:#e7e7e7; margin-bottom:0; padding:4px;
     }
     .title{
         font-size:22px;
@@ -39,6 +39,9 @@
         background-color:#3e5a7c; color:#ffffff; padding:4px;
     }
     .details{
-        margin:5px 0; color:#292929;
+        margin:8px 0; color:#292929; text-align:center;
+    }
+    ul{
+        font-size:16px; list-style-type:square;
     }
 </style>

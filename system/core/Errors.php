@@ -18,7 +18,7 @@ final class Errors{
         set_error_handler(array('System\Core\Errors', 'nonfatal'));
     }
 
-    public static function getTitle($errorNumber){
+    public static function getTitle($errorNumber=0){
         $errorType = array(
             E_ERROR              => 'Error',
             E_WARNING            => 'Warning',
@@ -32,39 +32,37 @@ final class Errors{
             E_USER_WARNING       => 'User Warning',
             E_USER_NOTICE        => 'User Notice',
             E_STRICT             => 'Runtime Notice',
-            E_RECOVERABLE_ERROR  => 'Catchable Fatal Error'
+            E_RECOVERABLE_ERROR  => 'Catchable Fatal Error',
+            E_DEPRECATED         => 'Deprecated',
+            E_USER_DEPRECATED    => 'User Deprecated'
         );
         if(isset($errorType[$errorNumber])) return $errorType[$errorNumber];
-        else return 'Unknown Error';
-    }
-
-    public static function make($message, $fatal=false){
-        $backTrace = debug_backtrace()[1];
-        if($fatal){
-            $error['type'] = 1;
-            $error['message'] = $message;
-            $error['file'] = $backTrace['file'];
-            $error['line'] = $backTrace['line'];
-            self::fatal($error);
-            exit();
-        }
-        else self::nonfatal(1, $message, $backTrace['file'], $backTrace['line']);
+        else return 'Unknown Error '.$errorNumber;
     }
 
     public static function fatal($error){
         $error['fatal'] = true;
         $error['title'] = self::getTitle($error['type']);
-        $error['shortFile'] = str_replace(getcwd(), '', $error['file']);
+        $error['file'] = str_replace(getcwd(), '', $error['file']);
+        if(stripos($error['message'], 'Uncaught exception') !== false){
+            $massage = stripos($error['message'], 'with message');
+            $error['oldMessage'] = explode('\'', $error['message']);
+            $error['message'] = 'Uncaught exception `'.$error['oldMessage'][1].'`';
+            if($massage !== false){
+                $error['title'] = $error['oldMessage'][1].'('.$error['title'].')';
+                $error['message'] = implode('\'',array_slice($error['oldMessage'], 3, 1));
+            }
+        }
         self::$catch[] = $error;
     }
 
     public static function nonfatal($errorNumber, $errorMessage, $errorFileName, $errorLineNumber){
+        if(error_reporting() == 0) return;
         $error['fatal'] = false;
         $error['title'] = self::getTitle($errorNumber);
         $error['type'] = $errorNumber;
         $error['message'] = $errorMessage;
-        $error['file'] = $errorFileName;
-        $error['shortFile'] = str_replace(getcwd(), '', $errorFileName);
+        $error['file'] = str_replace(getcwd(), '', $errorFileName);
         $error['line'] = $errorLineNumber;
         self::$catch[] = $error;
     }

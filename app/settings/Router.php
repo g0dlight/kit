@@ -24,11 +24,11 @@
  *
  * #### block Access to controller:
  *
- * Route::block($controller);
+ * Route::block('controller');
  *
  *
  * #### block Access to specific method in controller
  *
- * Route::block($controller, $method);
+ * Route::block('controller', 'method');
  *
  */
