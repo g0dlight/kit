@@ -18,17 +18,30 @@ final class Loader{
     public static $duplicate = false;
 
     function __construct(){
-        spl_autoload_register(array('System\Core\Loader', 'get'));
+        spl_autoload_register(array('System\Core\Loader', 'getClass'));
         self::update();
     }
 
-    public static function get($class){
+    public static function getClass($class){
         $class = strtolower($class);
         if(!isset(self::$autoLoad[$class]) || !file_exists(self::$autoLoad[$class].'/'.$class.'.php')){
             if(\Config::get('environment') == 'development') self::dumpAutoLoad();
         }
         if(@include_once self::$autoLoad[$class].'/'.$class.'.php'.'') return true;
         else return false;
+    }
+
+    public static function getView($path, $variables=array()){
+        $path .= '.php';
+        if(!file_exists($path)) return false;
+        foreach((array)$variables as $key => $value){
+            $$key = $value;
+        }
+        ob_start();
+        include $path.'';
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
     }
 
     public static function update(){

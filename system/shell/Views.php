@@ -3,25 +3,18 @@
  * #### Warning this is a SYSTEM FILE ####
  */
 
+use System\Core\Loader;
 use System\Core\Output;
 
 final class Views{
-    public static function load($filePath, $variablesArray=NULL,$resultIntoVariable=FALSE){
-        $filePath = 'app/views/'.$filePath.'.php';
-        if(!file_exists($filePath)) throw new KitException('`'.$filePath.'` View not found');
+    public static function make($path, $variables=array(), $returnContent=false){
+        $path = 'app/views/'.$path;
+        $result = Loader::getView($path,$variables);
+        if($result === false) throw new KitException('`'.$path.'` View not found');
         else{
-            if(is_array($variablesArray)){
-                foreach($variablesArray as $key => $value){
-                    $$key = $value;
-                }
-            }
-            ob_start();
-            include ''.$filePath.'';
-            $file = ob_get_contents();
-            ob_end_clean();
-            if($resultIntoVariable) return $file;
+            if($returnContent) return $result;
             else{
-                Output::push('view', $file);
+                Output::push('view', $result);
                 return true;
             }
         }

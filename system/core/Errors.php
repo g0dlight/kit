@@ -68,6 +68,7 @@ final class Errors{
     }
 
     public static function show(){
-        require_once 'system/views/error.php';
+        $css = Loader::getView('system/views/ErrorCss');
+        echo Loader::getView('system/views/ErrorHtml', array('css'=>$css,'errors'=>self::$catch));
     }
 }

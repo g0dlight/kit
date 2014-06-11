@@ -6,7 +6,7 @@
         clear:both; margin:0; padding:0;
     }
     .container{
-        margin:auto; width:100%; padding:0;
+        margin-bottom:50px; width:100%; padding:0;
     }
     .headLine{
         background-color:#78C878; padding:8px; font-size:32px; font-weight:bold;
@@ -30,7 +30,10 @@
         background-color:#7a1915; color:#ffffff; font-weight:bold; text-align:center; padding:8px;
     }
     .more{
-        background-color:#e7e7e7; margin-bottom:0; padding:4px;
+        background-color:#e7e7e7; margin-bottom:0; padding:8px;
+    }
+    .item{
+        float:left; margin:10px; padding:6px; border:2px dotted #aeaeae;
     }
     .title{
         font-size:22px;

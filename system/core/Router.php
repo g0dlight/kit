@@ -33,7 +33,7 @@ final class Router{
         }
         else $controller = \Config::get('default_controller');
 
-        if(Loader::get($controller)){
+        if(Loader::getClass($controller)){
             self::$Controller = $controller;
             return;
         }
