@@ -13,7 +13,7 @@ final class Loader{
     public static $autoLoad = false;
     public static $reserved = array(
         'kit','loader','kitexception','shutdown','errors','router','output',
-        'config','route','views'
+        'config','log','route','views'
     );
     public static $duplicate = false;
 
@@ -48,6 +48,7 @@ final class Loader{
         $system = array(
             'kitexception' => 'system/core',
             'config' => 'system/shell',
+            'log' => 'system/shell',
             'route' => 'system/shell',
             'views' => 'system/shell'
         );

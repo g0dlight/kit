@@ -53,6 +53,7 @@ final class Errors{
                 $error['message'] = implode('\'',array_slice($error['oldMessage'], 3, 1));
             }
         }
+        self::log($error);
         self::$catch[] = $error;
     }
 
@@ -64,7 +65,24 @@ final class Errors{
         $error['message'] = $errorMessage;
         $error['file'] = str_replace(getcwd(), '', $errorFileName);
         $error['line'] = $errorLineNumber;
+        self::log($error);
         self::$catch[] = $error;
+    }
+
+    public static function log($error){
+        if(!\Config::get('error_log')) return;
+        $error = (array)$error;
+        if(!isset($error['title'])) $error['title'] = 'Unknown Error';
+        if(!isset($error['message'])) $error['message'] = 'Unknown';
+        if(!isset($error['file'])) $error['file'] = 'Unknown';
+        if(!isset($error['line'])) $error['line'] = 'Unknown';
+        $str = '';
+        $str .= $error['title'].':'.PHP_EOL."\t";
+        $str .= '[MESSAGE] '.$error['message'].PHP_EOL."\t";
+        $str .= '[FILE] '.$error['file'].' ';
+        $str .= '[LINE] '.$error['line'];
+        $str .= PHP_EOL."\t".'-------';
+        \Log::write('Errors', $str);
     }
 
     public static function show(){

@@ -1,0 +1,6 @@
+####### THIS LOG CREATED ON: 12-06-2014 #######
+
+Notice:
+	[MESSAGE] Undefined variable: example
+	[FILE] \app\controllers\welcome.php [LINE] 11
+	-------

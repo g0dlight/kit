@@ -15,6 +15,9 @@ final class Config{
         if(!isset(self::$Config['environment']) || self::$Config['environment'] != 'production')
             self::$Config['environment'] = 'development';
 
+        ## error log
+        if(!isset(self::$Config['error_log'])) self::$Config['error_log'] = true;
+
         ## error output
         if(!isset(self::$Config['error_output'])) self::$Config['error_output'] = '';
 

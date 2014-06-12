@@ -18,6 +18,7 @@ final class Kit{
         new Config();
         new Errors();
         new Shutdown();
+        new Log();
         new Router();
 
         Router::getController();
