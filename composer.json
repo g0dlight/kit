@@ -9,12 +9,6 @@
             "email": "orelhadad@gmail.com"
         }
     ],
-    "repositories": [
-            {
-                "type": "vcs",
-                "url": "git@github.com:g0dlight/kit-framework.git"
-            }
-    ],
     "require": {
     	"lok/kit-framework" : "dev-master"
     },
