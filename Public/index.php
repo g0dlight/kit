@@ -6,4 +6,4 @@ require_once BASE_PATH.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
 
 $app = new Kit\Core\System();
 
-echo $app->run();
+$app->run();
