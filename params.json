@@ -1,6 +1,0 @@
-{
-  "name": "Kit-project",
-  "tagline": "php framework",
-  "body": "\r\n# Kit\r\nLight freamwork for PHP\r\n\r\n## Getting Started\r\n\r\nThere is no **STABLE** version yet.\r\n\r\nTo use **DEV** version for now, just run:\r\n```\r\ncomposer create-project -s dev lok/kit-project .\r\n```\r\n",
-  "note": "Don't delete this file! It's used internally to help with page regeneration."
-}
