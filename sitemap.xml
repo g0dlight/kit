@@ -10,11 +10,13 @@
     
 
     
+        
     <url>
-     <loc>/config/</loc>
+     <loc>/core/config/</loc>
      <lastmod>2016-12-09</lastmod>
      <changefreq>daily</changefreq>
     </url>
+        
     
 
 </urlset>
